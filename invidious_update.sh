@@ -1557,28 +1557,15 @@ install_invidious_companion() {
     then
       $SUDO $INSTALL pwgen
     fi
-    domain=$(sed -n 's/.*domain *: *\([^ ]*.*\)/\1/p' "${IN_CONFIG}")
     host_binding=$(sed -n 's/.*host_binding *: *\([^ ]*.*\)/\1/p' "${IN_CONFIG}")
     invidious_companion_key=$(pwgen 16 1)
     config_companion_key=$(sed -n 's/.*invidious_companion_key *: *\([^ ]*.*\)/\1/p' "${IN_CONFIG}")
     if [ -z $config_companion_key ]
-    then 
+    then
     # Add companion settings to config.yml
 echo "invidious_companion:
-  - private_url: http://localhost:8282
-    public_url: http://localhost:8282
+  - private_url: http://$host_binding:8282/companion
 invidious_companion_key: $invidious_companion_key" | ${SUDO} tee -a ${IN_CONFIG}
-  fi
-  # Check if domain is present in config.yml
-  if [ -n "$domain" ]
-  then
-      echo "domain is not empty, adding domain to companion public_url..."    
-      ${SUDO} sed -i "s/private_url: .*/private_url: http:\/\/$host_binding:8282/" ${IN_CONFIG}
-      ${SUDO} sed -i "s/public_url: .*/public_url: https:\/\/$domain/" ${IN_CONFIG}
-  else
-      echo "domain is empty, updating config for private_url..."
-      ${SUDO} sed -i "s/private_url: .*/private_url: http:\/\/$host_binding:8282/" ${IN_CONFIG}
-      ${SUDO} sed -i "s/public_url: .*/public_url: http:\/\/$host_binding:8282/" ${IN_CONFIG}
   fi
   # Check if signature server is present in config
   signature_server=$(sed -n 's/.*signature_server *: *\([^ ]*.*\)/\1/p' "${IN_CONFIG}")
